@@ -1,0 +1,48 @@
+version: "2.0"
+
+services:
+  pearl-pool-miner:
+    image: ghcr.io/YOUR_GITHUB_USER/pearl-pool-miner-akash:latest
+    env:
+      - PEARL_ADDRESS=prl1_CHANGE_ME
+      - PEARL_WORKER=akash-h100-01
+      - PEARL_POOL_HOST=sg1.alphapool.tech
+      - PEARL_POOL_PORT=5566
+      - HEALTH_PORT=8080
+      - PEARL_EXTRA_ARGS=
+    expose:
+      - port: 8080
+        as: 80
+        proto: tcp
+        to:
+          - global: true
+
+profiles:
+  compute:
+    pearl-pool-miner:
+      resources:
+        cpu:
+          units: 4.0
+        memory:
+          size: 16Gi
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: h100
+        storage:
+          - size: 20Gi
+
+  placement:
+    akash:
+      pricing:
+        pearl-pool-miner:
+          denom: uact
+          amount: 100000
+
+deployment:
+  pearl-pool-miner:
+    akash:
+      profile: pearl-pool-miner
+      count: 1
