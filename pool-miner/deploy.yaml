@@ -9,11 +9,8 @@ services:
       - PEARL_POOL_HOST=sg1.alphapool.tech
       - PEARL_POOL_PORT=5566
       - HEALTH_PORT=8080
-      - PEARL_EXTRA_ARGS=
     expose:
       - port: 8080
-        as: 80
-        proto: tcp
         to:
           - global: true
 
