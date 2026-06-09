@@ -7,7 +7,7 @@ RUN apt-get update && \
 RUN curl -L -o /usr/local/bin/alpha-miner https://pearl.alphapool.tech/downloads/alpha-miner && \
     chmod +x /usr/local/bin/alpha-miner
 
-COPY deploy/akash/templates/pool-miner/entrypoint.sh /app/entrypoint.sh
+COPY pool-miner/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 ENV PYTHONUNBUFFERED=1
