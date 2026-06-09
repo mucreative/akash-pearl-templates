@@ -1,45 +1,68 @@
+---
 version: "2.0"
 
 services:
-  pearl-pool-miner:
+  pearl-alphapool:
     image: ghcr.io/mucreative/pearl-pool-miner-akash:latest
-    env:
-      - PEARL_ADDRESS=prl1phpxr0w2vma3vsd84494nqw83tjnf8mmz2wj2p0lc9x06pre4qhns92grp7
-      - PEARL_WORKER=ak-1
-      - PEARL_POOL_HOST=sg1.alphapool.tech
-      - PEARL_POOL_PORT=5566
-      - HEALTH_PORT=8080
     expose:
       - port: 8080
+        as: 80
+        proto: tcp
         to:
           - global: true
+    env:
+      - PEARL_ADDRESS="prl1phpxr0w2vma3vsd84494nqw83tjnf8mmz2wj2p0lc9x06pre4qhns92grp7"
+      # Pearl wallet address for AlphaPool payouts.
+      - PEARL_WORKER="ak-1"
+      # Worker name shown on the pool dashboard.
+      - PEARL_POOL_HOST="sg1.alphapool.tech"
+      # AlphaPool Asia/Singapore endpoint. Other regions can be used if closer.
+      - PEARL_POOL_PORT="5566"
+      # AlphaPool Pearl TCP port.
+      - HEALTH_PORT="8080"
+      # Small HTTP health endpoint for Akash expose checks.
+      - PEARL_EXTRA_ARGS=""
+      # Optional extra alpha-miner CLI args. Leave blank unless needed.
 
 profiles:
   compute:
-    pearl-pool-miner:
+    pearl-alphapool:
       resources:
         cpu:
-          units: 4.0
+          units: 0.5
+          # Min 0.01 / Max 256 cpu.units. Pool miner does not need much CPU.
         memory:
-          size: 16Gi
+          size: 3Gi
+          # Min 3Gi is commonly used for GPU deployments on Akash.
+        storage:
+          size: 1Gi
+          # Pool miner does not store blockchain data; 1Gi is enough for logs/runtime.
         gpu:
           units: 1
           attributes:
             vendor:
               nvidia:
                 - model: h100
-        storage:
-          - size: 20Gi
+                # Keep h100 for now. Remove/comment this line to receive bids from more GPU models.
 
   placement:
     akash:
+      #######################################################
+      # Optional trusted provider filter.
+      # Remove this section if you want more bids from more providers.
+      # signedBy:
+      #   anyOf:
+      #     - "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"
+      #######################################################
       pricing:
-        pearl-pool-miner:
+        pearl-alphapool:
           denom: uact
           amount: 100000
+          # Keep high initially to show bids, then reduce after you know market price.
 
 deployment:
-  pearl-pool-miner:
+  pearl-alphapool:
     akash:
-      profile: pearl-pool-miner
+      profile: pearl-alphapool
       count: 1
+      # Max replica count: 50.
